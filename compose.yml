@@ -1,39 +1,43 @@
-volumes:
-
 services:
     gateway:
         container_name: gateway
         build: Gateway
         ports:
-            - "8080:8080"
+            - "8000:8000"
         restart: unless-stopped
     
     user:
         container_name: user
         build: User
-        depends_on:
+        depends_on: []
         restart: unless-stopped
     
     task:
         container_name: task
         build: Task
-        depends_on:
+        depends_on: []
         restart: unless-stopped
     
     notification:
         container_name: notification
         build: Notification
-        depends_on:
+        depends_on: []
         restart: unless-stopped
 
     analytics:
         container_name: analytics
-        build: Analytics
-        depends_on:
+        build: analytics
+        ports:  # remove after testing
+            - "8000:8000"
+        depends_on: ["analytics_db"]
+        restart: unless-stopped
+    analytics_db:
+        container_name: analytics_db
+        build: Mongo
         restart: unless-stopped
 
     collaboration:
         container_name: collaboration
         build: Collaboration
-        depends_on:
+        depends_on: []
         restart: unless-stopped

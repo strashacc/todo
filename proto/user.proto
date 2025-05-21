@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "user/generated;generated";
+
+// The User message
+message User {
+    uint64 id = 1;
+    string name = 2;
+    string email = 3;
+}
+
+// Create request and response
+message CreateUserRequest {
+    string name = 1;
+    string email = 2;
+}
+
+message CreateUserResponse {
+    User user = 1;
+}
+
+// Get user by ID
+message GetUserRequest {
+    uint64 id = 1;
+}
+
+message GetUserResponse {
+    User user = 1;
+}
+
+// List all users
+message ListUsersRequest {}
+
+message ListUsersResponse {
+    repeated User users = 1;
+}
+
+// Delete user by ID
+message DeleteUserRequest {
+    uint64 id = 1;
+}
+
+message DeleteUserResponse {
+    bool success = 1;
+}
+
+// The gRPC service
+service UserService {
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+    rpc GetUser(GetUserRequest) returns (GetUserResponse);
+    rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+}

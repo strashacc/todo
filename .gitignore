@@ -1,0 +1,13 @@
+.vscode
+
+*.exe
+
+# Word temporary
+~$*.doc*
+
+### macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+$RECYCLE.BIN/

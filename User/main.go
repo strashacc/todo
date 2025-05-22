@@ -11,6 +11,7 @@ import (
 
 func main() {
 	storage.InitDB()
+	// АЛЬТА!!! Ошибка в коде ДАТАБАЗЫ, я хз че за ошибка
 
 	r := mux.NewRouter()
 

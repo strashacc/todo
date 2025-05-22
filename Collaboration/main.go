@@ -44,7 +44,7 @@ func main() {
 
 		s := grpcServer.NewServer()
 		grpcServer := grpcLib.NewServer()
-		pb.RegisterTeamServiceServer(grpcServer, s)
+		pb.RegisterTeamServiceServer(grpcServer, s.UnimplementedTeamServiceServer)
 
 		log.Println("gRPC server listening on port", cfg.GRPC_PORT)
 		if err := grpcServer.Serve(lis); err != nil {

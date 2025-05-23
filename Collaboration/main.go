@@ -21,9 +21,10 @@ func main() {
 	file, err := os.Create("/logs/team.log")
 	if err != nil {
 		log.Println("Failed setting log output to file")
+	} else {
+		defer file.Close()
+		log.SetOutput(file)
 	}
-	defer file.Close()
-	log.SetOutput(file)
 
 	// Load config
 	if err := dotenv.Load(); err != nil {
@@ -44,7 +45,7 @@ func main() {
 
 		s := grpcServer.NewServer()
 		grpcServer := grpcLib.NewServer()
-		pb.RegisterTeamServiceServer(grpcServer, s.UnimplementedTeamServiceServer)
+		pb.RegisterTeamServiceServer(grpcServer, s)
 
 		log.Println("gRPC server listening on port", cfg.GRPC_PORT)
 		if err := grpcServer.Serve(lis); err != nil {

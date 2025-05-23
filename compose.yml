@@ -36,8 +36,12 @@ services:
         build: Mongo
         restart: unless-stopped
 
-    collaboration:
-        container_name: collaboration
+    team:
+        container_name: team
         build: Collaboration
-        depends_on: []
+        depends_on: ["team_db"]
+        restart: unless-stopped
+    team_db:
+        container_name: team_db
+        build: Mongo
         restart: unless-stopped

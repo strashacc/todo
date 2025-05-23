@@ -28,7 +28,8 @@ func Start() {
 	}
 
 	{
-		// teams := router.Group("/teams")
+		teams := router.Group("/teams")
+		teams.DELETE("/:id", controller.DeleteTeam)
 	}
 
 	{

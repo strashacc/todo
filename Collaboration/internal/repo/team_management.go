@@ -17,17 +17,17 @@ func CreateTeam(req *pb.CreateTeamRequest) (string, error) {
 
 	id := uuid.New().String()
 	insert := pb.Team{
-		Id: id,
-		Name: req.Name,
+		Id:          id,
+		Name:        req.Name,
 		Description: req.Description,
-		Members: req.Members,
+		Members:     req.Members,
 	}
 
 	res, err := col.InsertOne(context.TODO(), &insert)
 	if err != nil {
 		return "", err
 	} else if !res.Acknowledged {
-		return "", &UnknownInsertError{}
+		return "", &unknownInsertError{}
 	}
 	return id, nil
 }
@@ -44,14 +44,13 @@ func GetTeam(req *pb.GetTeamRequest) (*pb.Team, error) {
 
 func DeleteTeam(req *pb.DeleteTeamRequest) (*pb.TeamResponse, error) {
 	col := db.GetDatabase().Collection("teams")
-	
-	if res, err := col.DeleteOne(context.TODO(), req); err != nil {
-		return &pb.TeamResponse{Success: false, Message: "Failed deleting document"}, err
-	} else if !res.Acknowledged {
-		return &pb.TeamResponse{Success: false, Message: "Failed deleting document"}, DBWriteError{}
-	} else if res.DeletedCount == 0 {
-		return &pb.TeamResponse{Success: false, Message: "Failed deleting document"}, &NoDocumentError{}
-	}
 
+	if res, err := col.DeleteOne(context.TODO(), req); res.DeletedCount == 0 {
+		return &pb.TeamResponse{Success: false, Message: "Failed deleting document"}, &NoDocumentError
+	} else if !res.Acknowledged {
+		return &pb.TeamResponse{Success: false, Message: "Failed deleting document"}, &DBWriteError
+	} else if err != nil {
+		return &pb.TeamResponse{Success: false, Message: "Failed deleting document"}, err
+	}
 	return &pb.TeamResponse{Success: true, Id: req.TeamId, Message: "Team deleted successfully"}, nil
 }

@@ -1,29 +1,40 @@
 package repo
 
-type UnknownInsertError struct {
+var (
+	UnknownInsertError unknownInsertError
+	BadUserError badUserError
+	DBWriteError dbWriteError
+	NoDocumentError noDocumentError
+)
+
+type unknownInsertError struct {
 	error
 }
-func (err *UnknownInsertError) Error() string {
+
+func (err *unknownInsertError) Error() string {
 	return "Team creation failed: Unknown error"
 }
 
-type BadUserError struct {
+type badUserError struct {
 	error
 }
-func (err *BadUserError) Error() string {
+
+func (err *badUserError) Error() string {
 	return "User does not exist"
 }
 
-type DBWriteError struct {
+type dbWriteError struct {
 	error
 }
-func (err DBWriteError) Error() string {
+
+func (err *dbWriteError) Error() string {
 	return "Couldn't write to DB"
 }
 
-type NoDocumentError struct {
+type noDocumentError struct {
 	error
 }
-func (err *NoDocumentError) Error() string {
+
+func (err *noDocumentError) Error() string {
 	return "Document not found"
 }

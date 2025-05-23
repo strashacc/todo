@@ -1,16 +1,13 @@
 FROM golang:latest
 
-# RUN apt-get update
-# RUN apt-get upgrade
-# RUN apt-get install -y protobuf-compiler
-# RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-# RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-
 WORKDIR /project
 
 COPY . .
 
-# RUN protoc --go_out=. --go-grpc_out=. proto/*
 RUN go mod download
+
+ENV MONGO_URI="mongodb://team_db:27017"
+ENV GRPC_PORT=50051
+ENV DB=teams
 
 CMD [ "go", "run", "main.go" ]

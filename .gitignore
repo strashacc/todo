@@ -4,6 +4,7 @@
 
 # Word temporary
 ~$*.doc*
+~*
 
 ### macOS
 .DS_Store

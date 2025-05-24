@@ -1,3 +1,5 @@
+volumes:
+    task_db_volume:
 services:
     gateway:
         container_name: gateway
@@ -15,7 +17,17 @@ services:
     task:
         container_name: task
         build: Task
-        depends_on: []
+        ports:
+            - "8080:8080" # remove after testing
+        depends_on: ["task_db"]
+        restart: unless-stopped
+    task_db:
+        container_name: task_db
+        build: PostgreSQL
+        environment:
+            - POSTGRES_DB=tasks
+        volumes:
+            - task_db_volume:/db
         restart: unless-stopped
     
     notification:

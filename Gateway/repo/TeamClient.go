@@ -36,3 +36,18 @@ func DeleteTeam(id string) (*team_pb.TeamResponse, error) {
 	}
 	return res, err
 }
+
+func CreateTeam(team *team_pb.CreateTeamRequest) (*team_pb.TeamResponse, error) {
+	conn, client, ctx, cancel, err := getClient()
+	if err != nil {
+		return &team_pb.TeamResponse{Success: false, Message: "Internal server error"}, err
+	}
+	defer conn.Close()
+	defer cancel()
+
+	res, err := client.CreateTeam(ctx, team)
+	if err != nil {
+		return &team_pb.TeamResponse{Success: false, Message: "Couldn't create team"}, err
+	}
+	return res, err
+}

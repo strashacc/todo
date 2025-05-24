@@ -10,6 +10,8 @@ import (
 func Start() {
 	router := gin.Default()
 	router.LoadHTMLGlob("frontend/templates/*")
+	// router.Use()
+	// Attach auth middleware here
 	router.Static("/static", "frontend/static")
 	{
 		router.GET("", controller.GetIndex)
@@ -30,6 +32,7 @@ func Start() {
 	{
 		teams := router.Group("/teams")
 		teams.DELETE("/:id", controller.DeleteTeam)
+		teams.POST("", controller.CreateTeam)
 	}
 
 	{

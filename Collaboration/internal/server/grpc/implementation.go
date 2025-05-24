@@ -20,15 +20,22 @@ func (s *Server) CreateTeam(ctx context.Context, req *pb.CreateTeamRequest) (*pb
 	id, err := repo.CreateTeam(req)
 	if errors.Is(err, &repo.BadUserError) {
 		return &pb.TeamResponse{Success: false, Message: "Couldn't create team: Not every user exists"}, nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return &pb.TeamResponse{Success: false, Message: "Couldn't create team"}, err
 	}
 	return &pb.TeamResponse{Success: true, Id: id, Message: "Team successfully created"}, nil
 }
 
 func (s *Server) GetTeam(ctx context.Context, req *pb.GetTeamRequest) (*pb.Team, error) {
-	return &pb.Team{}, nil
+	team, err := repo.GetTeam(req)
+	if err == &repo.NoDocumentError {
+		log.Println("Database returned no documents")
+		return &pb.Team{}, nil
+	} else if err != nil {
+		log.Println(err.Error())
+		return &pb.Team{}, err
+	}
+	return team, nil
 }
 
 func (s *Server) GetTeams(ctx context.Context, req *pb.Empty) (*pb.TeamList, error) {

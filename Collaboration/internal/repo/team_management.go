@@ -3,6 +3,7 @@ package repo
 import (
 	db "collaboration/db/mongodb"
 	pb "collaboration/pb/team_pb"
+	// user_pb "collaboration/pb/user/generated"
 	"context"
 
 	"github.com/google/uuid"
@@ -39,7 +40,15 @@ func GetTeam(req *pb.GetTeamRequest) (*pb.Team, error) {
 	if err := col.FindOne(context.TODO(), req).Decode(&res); err != nil {
 		return &pb.Team{}, err
 	}
+	if res.Id == "" {
+		return &pb.Team{}, &NoDocumentError
+	}
 	return res, nil
+}
+
+func GetTeams(req *pb.Empty) (*pb.TeamList, error) {
+	// col := db.GetDatabase().Collection("teams")
+	return &pb.TeamList{}, nil
 }
 
 func DeleteTeam(req *pb.DeleteTeamRequest) (*pb.TeamResponse, error) {

@@ -1,41 +1,20 @@
+version: "3.8"
+
 services:
-    gateway:
-        container_name: gateway
-        build: Gateway
-        ports:
-            - "8000:8000"
-        restart: unless-stopped
-    
-    user:
-        container_name: user
-        build: User
-        depends_on: []
-        restart: unless-stopped
-    
-    task:
-        container_name: task
-        build: Task
-        depends_on: []
-        restart: unless-stopped
-    
-    notification:
-        container_name: notification
-        build: Notification
-        depends_on: []
-        restart: unless-stopped
+  gateway:
+    container_name: gateway
+    build: Gateway
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
 
-    analytics:
-        container_name: analytics
-        build: analytics
-        ports:  # remove after testing
-            - "8000:8000"
-        depends_on: ["analytics_db"]
-        restart: unless-stopped
-    analytics_db:
-        container_name: analytics_db
-        build: Mongo
-        restart: unless-stopped
+  user:
+    container_name: user
+    build: User
+    depends_on: []
+    restart: unless-stopped
 
+<<<<<<< Updated upstream
     team:
         container_name: team
         build: Collaboration
@@ -45,3 +24,57 @@ services:
         container_name: team_db
         build: Mongo
         restart: unless-stopped
+=======
+  task:
+    container_name: task
+    build: Task
+    depends_on: []
+    restart: unless-stopped
+
+  notification:
+    container_name: notification
+    build: Notification
+    ports:
+      - "50051:50051" # gRPC
+      - "8082:8082" # REST
+    env_file:
+      - ./Notification/.env
+    depends_on:
+      - notification_db
+    restart: unless-stopped
+
+  notification_db:
+    image: mongo:latest
+    container_name: notification_db
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    volumes:
+      - notification_db_data:/data/db
+
+  analytics:
+    container_name: analytics
+    build: analytics
+    ports: # remove after testing
+      - "8000:8000"
+    depends_on:
+      - analytics_db
+    restart: unless-stopped
+
+  analytics_db:
+    image: mongo:latest
+    container_name: analytics_db
+    restart: unless-stopped
+    volumes:
+      - analytics_db_data:/data/db
+
+  collaboration:
+    container_name: collaboration
+    build: Collaboration
+    depends_on: []
+    restart: unless-stopped
+
+volumes:
+  notification_db_data:
+  analytics_db_data:
+>>>>>>> Stashed changes

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package notification;
+option go_package = "github.com/strashacc/todo/Notification/proto;notification";
+
+service NotificationService {
+  rpc CreateNotification (CreateNotificationRequest) returns (NotificationResponse);
+  rpc GetUserNotifications (GetUserNotificationsRequest) returns (NotificationsList);
+}
+
+message CreateNotificationRequest {
+  string type = 1;
+  string message = 2;
+  string userId = 3;
+  string teamId = 4;
+  string taskId = 5;
+}
+
+message NotificationResponse {
+  string notificationId = 1;
+}
+
+message GetUserNotificationsRequest {
+  string userId = 1;
+}
+
+message NotificationItem {
+  string id = 1;
+  string type = 2;
+  string message = 3;
+  string taskId = 4;
+  string createdAt = 5;
+  bool read = 6;
+}
+
+message NotificationsList {
+  repeated NotificationItem notifications = 1;
+}

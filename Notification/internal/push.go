@@ -1,0 +1,10 @@
+package internal
+
+import (
+    "fmt"
+    "github.com/strashacc/todo/Notification/models"
+)
+
+func PushNotification(notif models.Notification) {
+    fmt.Printf("[PUSH] Notification: %s (UserID: %v, Message: %s)\n", notif.ID.Hex(), notif.UserID, notif.Message)
+}

@@ -1,9 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type User struct {
-	gorm.Model
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Email    string             `bson:"email" json:"email"`
+	Password string             `bson:"password,omitempty" json:"-"`
 }

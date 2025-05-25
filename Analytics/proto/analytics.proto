@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package analytics;
+
+option go_package = "analytics/internal/delivery/grpc/pb;pb";
+
+import "google/protobuf/empty.proto";
+
+service AnalyticsService {
+  // Статистика по задачам пользователя
+  rpc GetUserTaskStats(UserTaskStatsRequest) returns (TaskStatsResponse);
+
+  // Статистика по задачам команды
+  rpc GetTeamTaskStats(TeamTaskStatsRequest) returns (TaskStatsResponse);
+}
+
+// Запрос на статистику по пользователю
+message UserTaskStatsRequest {
+  string user_id = 1;
+}
+
+// Запрос на статистику по команде
+message TeamTaskStatsRequest {
+  string team_id = 1;
+}
+
+// Ответ со статистикой задач
+message TaskStatsResponse {
+  int32 total_tasks = 1;       // Всего задач
+  int32 completed_tasks = 2;   // Выполнено
+  int32 in_progress_tasks = 3; // В процессе (не выполнено, не просрочено)
+  int32 overdue_tasks = 4;     // Просрочено
+}

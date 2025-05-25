@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package analytics;
+
+option go_package = "analytics/internal/delivery/grpc/pb;pb";
+
+import "google/protobuf/empty.proto";
+
+message Member {
+    uint64 userId = 1;
+    string name = 2;
+    bool admin = 3;
+}
+
+message Team {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    repeated Member members = 4;
+}
+
+message TeamList {
+    repeated Team teams = 1;
+}
+
+message CreateTeamRequest {
+    string name = 1;
+    string description = 2;
+    repeated Member members = 3;
+}
+message GetTeamRequest {
+    string teamId = 1;
+}
+message DeleteTeamRequest {
+    string teamId = 1;
+}
+message UpdateTeamRequest {
+    string teamId = 1;
+    Team update = 2;
+}
+
+message TeamResponse {
+    bool success = 1;
+    string id = 2;
+    string message = 3;
+}
+
+service TeamService {
+    rpc CreateTeam(CreateTeamRequest) returns (TeamResponse);
+    rpc GetTeam(GetTeamRequest) returns (Team);
+    rpc GetTeams(google.protobuf.Empty) returns (TeamList);
+    rpc DeleteTeam(DeleteTeamRequest) returns (TeamResponse);
+    rpc UpdateTeam(UpdateTeamRequest) returns (TeamResponse);
+}

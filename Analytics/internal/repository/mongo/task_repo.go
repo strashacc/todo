@@ -18,27 +18,61 @@ func NewTaskRepository(db *mongo.Database) *TaskRepository {
 	}
 }
 
-func (r *TaskRepository) CountStats(ctx context.Context) (completedToday, completedWeek, total int64, err error) {
+// Общая статистика по всем задачам
+func (r *TaskRepository) CountStats(ctx context.Context) (total, completed, inProgress, overdue int64, err error) {
+	return r.countByFilter(ctx, bson.M{})
+}
+
+// Статистика по задачам конкретной команды
+func (r *TaskRepository) CountTeamStats(ctx context.Context, teamID string) (total, completed, inProgress, overdue int64, err error) {
+	return r.countByFilter(ctx, bson.M{"team_id": teamID})
+}
+
+// Статистика по задачам конкретного пользователя
+func (r *TaskRepository) CountUserStats(ctx context.Context, userID string) (total, completed, inProgress, overdue int64, err error) {
+	return r.countByFilter(ctx, bson.M{"user_id": userID})
+}
+
+// Общая логика подсчета с учетом фильтра
+func (r *TaskRepository) countByFilter(ctx context.Context, filter bson.M) (total, completed, inProgress, overdue int64, err error) {
 	now := time.Now()
-	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	weekAgo := now.AddDate(0, 0, -7)
 
-	total, err = r.col.CountDocuments(ctx, bson.M{})
+	// Всего задач
+	total, err = r.col.CountDocuments(ctx, filter)
 	if err != nil {
 		return
 	}
 
-	completedToday, err = r.col.CountDocuments(ctx, bson.M{
-		"status":       "completed",
-		"completed_at": bson.M{"$gte": todayStart},
-	})
+	// Выполнено
+	filterCompleted := cloneFilter(filter)
+	filterCompleted["status"] = "completed"
+	completed, err = r.col.CountDocuments(ctx, filterCompleted)
 	if err != nil {
 		return
 	}
 
-	completedWeek, err = r.col.CountDocuments(ctx, bson.M{
-		"status":       "completed",
-		"completed_at": bson.M{"$gte": weekAgo},
-	})
+	// Просрочено
+	filterOverdue := cloneFilter(filter)
+	filterOverdue["status"] = bson.M{"$ne": "completed"}
+	filterOverdue["deadline"] = bson.M{"$lt": now}
+	overdue, err = r.col.CountDocuments(ctx, filterOverdue)
+	if err != nil {
+		return
+	}
+
+	// В процессе
+	filterInProgress := cloneFilter(filter)
+	filterInProgress["status"] = bson.M{"$ne": "completed"}
+	filterInProgress["deadline"] = bson.M{"$gte": now}
+	inProgress, err = r.col.CountDocuments(ctx, filterInProgress)
 	return
+}
+
+// Утилита клонирования фильтра
+func cloneFilter(m bson.M) bson.M {
+	clone := bson.M{}
+	for k, v := range m {
+		clone[k] = v
+	}
+	return clone
 }

@@ -65,8 +65,8 @@ message TaskResponse {
 message Empty {}
 
 service TaskService {
-    rpc CreateTask(CreateTaskRequest) returns (TaskResponse);
-    rpc GetTask(GetTaskRequest) returns (Task);
+    rpc Crsk(CreateTaskRequest) returns (TaskResponse);
+    rpc GetTaskeateTa(GetTaskRequest) returns (Task);
     rpc GetTasks(Empty) returns (TaskList);
     rpc DeleteTask(DeleteTaskRequest) returns (TaskResponse);
     rpc UpdateTask(UpdateTaskRequest) returns (TaskResponse);

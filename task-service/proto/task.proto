@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package task;
+
+option go_package = "task/pb/task_pb";
+
+import "google/protobuf/timestamp.proto";
+
+// --- Основная сущность ---
+message Task {
+  uint64 id = 1;
+  uint64 userId = 2;
+  string teamId = 3;
+  string title = 4;
+  string description = 5;
+  string status = 6; // pending, in-progress, done
+  string priority = 7; // low, medium, high
+  google.protobuf.Timestamp deadline = 8;
+  repeated string tags = 9;
+  string folder = 10;
+  google.protobuf.Timestamp createdAt = 11;
+  google.protobuf.Timestamp updatedAt = 12;
+}
+
+// --- Список задач ---
+message TaskList {
+  repeated Task tasks = 1;
+}
+
+// --- Запросы ---
+message CreateTaskRequest {
+  uint64 userId = 1;
+  string teamId = 2;
+  string title = 3;
+  string description = 4;
+  string status = 5;
+  string priority = 6;
+  google.protobuf.Timestamp deadline = 7;
+  repeated string tags = 8;
+  string folder = 9;
+}
+
+message GetTaskRequest {
+  uint64 taskId = 1;
+}
+
+message DeleteTaskRequest {
+  uint64 taskId = 1;
+}
+
+message UpdateTaskRequest {
+  uint64 taskId = 1;
+  Task update = 2;
+}
+
+// --- Ответы ---
+message TaskResponse {
+  bool success = 1;
+  uint64 id = 2;
+  string message = 3;
+  Task task = 4;
+}
+
+// --- Пустое сообщение ---
+message Empty {}
+
+// --- gRPC сервис ---
+service TaskService {
+  rpc CreateTask(CreateTaskRequest) returns (TaskResponse);
+  rpc GetTask(GetTaskRequest) returns (Task);
+  rpc GetTasks(Empty) returns (TaskList);
+  rpc DeleteTask(DeleteTaskRequest) returns (TaskResponse);
+  rpc UpdateTask(UpdateTaskRequest) returns (TaskResponse);
+}

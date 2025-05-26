@@ -35,6 +35,9 @@ func Start() {
 		teams := router.Group("/teams")
 		teams.DELETE("/:id", controller.DeleteTeam)
 		teams.POST("", controller.CreateTeam)
+		teams.GET("/:id", controller.GetTeam)
+		teams.GET("", controller.GetTeams)
+		teams.PATCH("/:id", controller.UpdateTeam)
 	}
 
 	{

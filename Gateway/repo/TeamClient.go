@@ -51,3 +51,51 @@ func CreateTeam(team *team_pb.CreateTeamRequest) (*team_pb.TeamResponse, error) 
 	}
 	return res, err
 }
+
+func GetTeam(id string) (*team_pb.Team, error) {
+	conn, client, ctx, cancel, err := getClient()
+	if err != nil {
+		return &team_pb.Team{}, err
+	}
+	defer conn.Close()
+	defer cancel()
+
+	res, err := client.GetTeam(ctx, &team_pb.GetTeamRequest{TeamId: id})
+	if err != nil {
+		return &team_pb.Team{}, err
+	}
+	return res, nil
+}
+
+func GetTeams() (*team_pb.TeamList, error) {
+	conn, client, ctx, cancel, err := getClient()
+	if err != nil {
+		return &team_pb.TeamList{}, err
+	}
+	defer conn.Close()
+	defer cancel()
+
+	res, err := client.GetTeams(ctx, &team_pb.Empty{})
+	if err != nil {
+		return &team_pb.TeamList{}, err
+	}
+	if len(res.Teams) == 0 {
+		return &team_pb.TeamList{}, nil
+	}
+	return res, nil
+}
+
+func UpdateTeam(team *team_pb.UpdateTeamRequest) (*team_pb.TeamResponse, error) {
+	conn, client, ctx, cancel, err := getClient()
+	if err != nil {
+		return &team_pb.TeamResponse{}, err
+	}
+	defer conn.Close()
+	defer cancel()
+
+	res, err := client.UpdateTeam(ctx, team)
+	if err != nil {
+		return &team_pb.TeamResponse{}, err
+	}
+	return res, nil
+}

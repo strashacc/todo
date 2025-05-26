@@ -1,32 +1,42 @@
 package storage
 
 import (
-	// "log"
-	// "user/models"
-
-	// "gorm.io/driver/sqlite"
+	"context"
 	"log"
-	"user/models"
+	"time"
 
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// this shit is laced  :(
-var DB *gorm.DB
+// MongoDB variables
+var Client *mongo.Client
+var UserCollection *mongo.Collection
 
 func InitDB() {
+	// MongoDB connection URI
+	uri := "mongodb://localhost:27017"
+
+	// MongoDB client options
+	clientOpts := options.Client().ApplyURI(uri)
+
+	// Connect to MongoDB
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	var err error
-	DB, err = gorm.Open(sqlite.Open("user.db"), &gorm.Config{})
+	Client, err = mongo.Connect(ctx, clientOpts)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal("Failed to connect to MongoDB:", err)
 	}
 
-	// Auto-migrate schema
-	DB.AutoMigrate(&models.User{})
-}
+	// Check the connection
+	err = Client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal("MongoDB ping failed:", err)
+	}
 
-func main() {
-	InitDB()
-	log.Println("Database initialized and User.db created successfully.")
+	// Get user collection from database
+	UserCollection = Client.Database("todo_db").Collection("users")
+	log.Println("MongoDB initialized and 'users' collection is ready.")
 }

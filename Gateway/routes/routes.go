@@ -26,7 +26,9 @@ func Start() {
 	}
 
 	{
-		// analytics := router.Group("/analytics")
+		analytics := router.Group("/analytics")
+		analytics.GET("/user/:userID", controller.GetUserTaskStats)
+		analytics.GET("/team/:teamID", controller.GetTeamTaskStats)
 	}
 
 	{
@@ -46,5 +48,5 @@ func Start() {
 	if port == "" {
 		port = "8000"
 	}
-	router.Run(":" + port)	
+	router.Run(":" + port)
 }

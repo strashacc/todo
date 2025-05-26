@@ -1,6 +1,13 @@
 volumes:
     task_db_volume:
 services:
+    # Imported services
+    nats:
+        container_name: nats
+        image: nats
+        restart: unless-stopped
+
+    # Our services
     gateway:
         container_name: gateway
         build: Gateway

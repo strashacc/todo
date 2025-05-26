@@ -3,10 +3,13 @@ package repo
 import (
 	db "collaboration/db/mongodb"
 	pb "collaboration/pb/team_pb"
+	"log"
+
 	// user_pb "collaboration/pb/user/generated"
 	"context"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func CreateTeam(req *pb.CreateTeamRequest) (string, error) {
@@ -47,8 +50,18 @@ func GetTeam(req *pb.GetTeamRequest) (*pb.Team, error) {
 }
 
 func GetTeams(req *pb.Empty) (*pb.TeamList, error) {
-	// col := db.GetDatabase().Collection("teams")
-	return &pb.TeamList{}, nil
+	col := db.GetDatabase().Collection("teams")
+
+	cur, err := col.Find(context.TODO(), bson.M{})
+	if err != nil {
+		return &pb.TeamList{}, err
+	}
+	var res pb.TeamList
+	cur.All(context.TODO(), &res)
+	if len(res.Teams) == 0 {
+		return &pb.TeamList{}, &NoDocumentError
+	}
+	return &res, nil
 }
 
 func DeleteTeam(req *pb.DeleteTeamRequest) (*pb.TeamResponse, error) {
@@ -62,4 +75,47 @@ func DeleteTeam(req *pb.DeleteTeamRequest) (*pb.TeamResponse, error) {
 		return &pb.TeamResponse{Success: false, Message: "Failed deleting document"}, err
 	}
 	return &pb.TeamResponse{Success: true, Id: req.TeamId, Message: "Team deleted successfully"}, nil
+}
+
+func UpdateTeam(req *pb.UpdateTeamRequest) (*pb.TeamResponse, error) {
+	col := db.GetDatabase().Collection("teams")
+
+	res, err := col.ReplaceOne(context.TODO(), pb.GetTeamRequest{TeamId: req.TeamId}, req.Update)
+	if err != nil {
+		return &pb.TeamResponse{Success: false, Message: "Error"}, nil
+	} else if res.ModifiedCount == 0 {
+		return &pb.TeamResponse{Success: false, Message: "Team doesn't exist"}, &NoDocumentError
+	}
+	return &pb.TeamResponse{Success: true, Id: req.TeamId, Message: "Updated team successfully"}, nil
+}
+
+func DeleteUser(userId int) (*pb.TeamResponse, error) {
+	col := db.GetDatabase().Collection("teams")
+
+	res, err := col.Find(context.TODO(), bson.M{"Members": userId})
+	if err != nil {
+		return &pb.TeamResponse{Success: false}, nil
+	}
+	var teams pb.TeamList
+	res.All(context.TODO(), &teams.Teams)
+
+	for _, team := range teams.Teams {
+		update := &pb.UpdateTeamRequest{
+			TeamId: team.Id,
+		}
+		for i, user := range team.Members {
+			if user.UserId == uint64(userId) {
+				team.Members = append(team.Members[:i-1], team.Members[i + 1:]...)
+				update.Update = team
+				break
+			}
+		}
+		res, err := UpdateTeam(update)
+		if err != nil {
+			log.Println(err.Error())
+		} else {
+			log.Println(res)
+		}
+	}
+	return &pb.TeamResponse{Success: true}, nil
 }

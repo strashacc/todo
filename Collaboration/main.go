@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net"
 	"os"
@@ -9,10 +10,12 @@ import (
 
 	"collaboration/config"
 	"collaboration/db/mongodb"
+	"collaboration/internal/repo"
 	grpcServer "collaboration/internal/server/grpc"
 	pb "collaboration/pb/team_pb"
 
 	dotenv "github.com/joho/godotenv"
+	"github.com/nats-io/nats.go"
 	grpcLib "google.golang.org/grpc"
 )
 
@@ -51,6 +54,16 @@ func main() {
 		if err := grpcServer.Serve(lis); err != nil {
 			log.Fatalf("gRPC serve error: %v", err)
 		}
+	}()
+
+	go func() {
+		nc, _ := nats.Connect("nats://nats:4222")
+
+		nc.Subscribe("user.deleted", func(msg *nats.Msg) {
+			var userId int
+			json.Unmarshal(msg.Data, &userId)
+			repo.DeleteUser(userId)
+		})
 	}()
 
 	sig := make(chan os.Signal, 1)

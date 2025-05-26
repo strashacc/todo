@@ -39,11 +39,13 @@ func (s *Server) GetTeam(ctx context.Context, req *pb.GetTeamRequest) (*pb.Team,
 }
 
 func (s *Server) GetTeams(ctx context.Context, req *pb.Empty) (*pb.TeamList, error) {
-	return &pb.TeamList{}, nil
-}
-
-func (s *Server) UpdateTeam(ctx context.Context, req *pb.UpdateTeamRequest) (*pb.TeamResponse, error) {
-	return &pb.TeamResponse{}, nil
+	res, err := repo.GetTeams(&pb.Empty{})
+	if err == &repo.NoDocumentError {
+		return &pb.TeamList{}, nil
+	} else if err != nil {
+		return &pb.TeamList{}, err
+	}
+	return res, nil
 }
 
 func (s *Server) DeleteTeam(ctx context.Context, req *pb.DeleteTeamRequest) (*pb.TeamResponse, error) {
@@ -54,6 +56,17 @@ func (s *Server) DeleteTeam(ctx context.Context, req *pb.DeleteTeamRequest) (*pb
 		return &pb.TeamResponse{Success: false, Message: "Deletion status unknown"}, nil
 	} else if err != nil {
 		log.Println(err.Error())
+		return res, err
+	}
+	return res, nil
+}
+
+func (s *Server) UpdateTeam(ctx context.Context, req *pb.UpdateTeamRequest) (*pb.TeamResponse, error) {
+	res, err := repo.UpdateTeam(req)
+	if errors.Is(err, &repo.NoDocumentError) {
+		log.Println(err.Error())
+		return res, nil
+	} else if err != nil {
 		return res, err
 	}
 	return res, nil
